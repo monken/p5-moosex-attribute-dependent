@@ -98,8 +98,8 @@ At least one of the related attributes cannot have a value.
 
 =head1 CUSTOM DEPENDENCIES
 
-To define your own dependency, first create a class to declare constraints
-using L<MooseX::Types>. In this example, we want to restrict an attribute
+To define your own dependency, first create a class to register your
+custom dependency. In this example, we want to restrict an attribute
 to values smaller than serveral other attributes.
 
  package MyApp::Types;
@@ -114,8 +114,8 @@ to values smaller than serveral other attributes.
     }
  );
 
-Then load C<MyApp::Types> in your class before MooseX::Attribute::Dependent
-and set the dependency an attribute.
+Then load C<MyApp::Types> in your class before loading C<MooseX::Attribute::Dependent>
+and set the dependency on an attribute.
 
  package MyClass;
  use Moose;
