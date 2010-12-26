@@ -1,4 +1,4 @@
-package MooseX::Dependency::Meta::Role::Method::Constructor;
+package MooseX::Attribute::Dependent::Meta::Role::Method::Constructor;
 
 use strict;
 use warnings;
@@ -13,14 +13,14 @@ override _generate_slot_initializer => sub {
     
     return super() 
         if(!$is_moose 
-            || !$attr->does('MooseX::Dependency::Meta::Role::Attribute')
+            || !$attr->does('MooseX::Attribute::Dependent::Meta::Role::Attribute')
             || !$attr->has_dependency
             || !$attr->init_arg);
     my @source;
-    my $related = "'" . join("', '", @{$attr->dependency->related}) . "'";
+    my $related = "'" . join("', '", @{$attr->dependency->parameters}) . "'";
     push @source => 'if(exists $params->{' . $attr->init_arg . '}) {';
     push @source => $self->_inline_throw_error( '"' . quotemeta($attr->dependency->get_message) . '"' );
-    push @source => "unless(" . $attr->dependency->name . "->check(\"" . quotemeta($attr->init_arg) . "\", \$params, $related));";
+    push @source => "unless(" . $attr->dependency->name . "->constraint->(\"" . quotemeta($attr->init_arg) . "\", \$params, $related));";
     push @source => '}';
     return join("\n", @source, super());
 };

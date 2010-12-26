@@ -1,14 +1,16 @@
 use Test::Most;
 
 package All;
-use MooseX::Dependency;
+use Moose;
+use MooseX::Attribute::Dependent;
 
 has street => ( is => 'rw', dependency => All['city', 'zip'] );
 has city => ( is => 'ro' );
 has zip => ( is => 'ro', clearer => 'clear_zip' );
 
 package Any;
-use MooseX::Dependency;
+use Moose;
+use MooseX::Attribute::Dependent;
 
 has street => ( is => 'rw', dependency => Any['city', 'zip'] );
 has city => ( is => 'ro' );

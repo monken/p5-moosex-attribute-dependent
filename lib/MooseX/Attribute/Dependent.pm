@@ -1,21 +1,20 @@
-package MooseX::Dependency;
+package MooseX::Attribute::Dependent;
 # ABSTRACT: Restrict attributes based on values of other attributes
 use Moose ();
 use Moose::Exporter;
 use Moose::Util::MetaRole;
-use MooseX::Dependency::Types ();
+use MooseX::Attribute::Dependency;
+use MooseX::Attribute::Dependent::Meta::Role::Method::Constructor;
 
-use MooseX::Dependency::Meta::Role::Method::Constructor;
 
 Moose::Exporter->setup_import_methods(
-    also  => 'Moose',
-    as_is => [
-        \&MooseX::Dependency::Types::All,
-        \&MooseX::Dependency::Types::Any,
-        \&MooseX::Dependency::Types::None,
-        \&MooseX::Dependency::Types::NotAll,
-    ]
+    as_is => &get_dependencies
 );
+
+sub get_dependencies {
+    my $meta = Class::MOP::Class->initialize('MooseX::Attribute::Dependencies');
+    return [ map { $_->body } $meta->get_all_methods ];
+}
 
 sub init_meta {
     shift;
@@ -27,8 +26,8 @@ sub init_meta {
         for             => $args{for_class},
         class_metaroles => {
             constructor =>
-              ['MooseX::Dependency::Meta::Role::Method::Constructor'],
-            attribute => ['MooseX::Dependency::Meta::Role::Attribute'],
+              ['MooseX::Attribute::Dependent::Meta::Role::Method::Constructor'],
+            attribute => ['MooseX::Attribute::Dependent::Meta::Role::Attribute'],
         },
     );
 
@@ -42,13 +41,14 @@ __END__
 =head1 SYNOPSIS
 
  package Address;
- use MooseX::Dependency;
+ use Moose;
+ use MooseX::Attribute::Dependent;
 
  has street => ( is => 'rw', dependency => All['city', 'zip'] );
  has city => ( is => 'ro' );
  has zip => ( is => 'ro', clearer => 'clear_zip' );
 
- no MooseX::Dependency;
+ no MooseX::Attribute::Dependent;
 
 
  Address->new( street => '10 Downing Street' );
@@ -103,32 +103,25 @@ using L<MooseX::Types>. In this example, we want to restrict an attribute
 to values smaller than serveral other attributes.
 
  package MyApp::Types;
- use MooseX::Types -declare => [qw(SmallerThan)];
- use Moose::Util::TypeConstraints;
- use strict;
- use warnings;
- use MooseX::Dependency::TypeConstraint;
- use List::MoreUtils ();
-
- my $REGISTRY = Moose::Util::TypeConstraints->get_type_constraint_registry;
- $REGISTRY->add_type_constraint(
-    MooseX::Dependency::TypeConstraint->new(
-        name               => SmallerThan,
-        package_defined_in => __PACKAGE__,
-        parent             => find_type_constraint('Item'),
-        message => 'The value must be smaller than ',
+ use MooseX::Attribute::Dependency;
+ MooseX::Attribute::Dependency::register({
+        name               => 'SmallerThan',
+        message            => 'The value must be smaller than ',
         constraint         => sub {
             my ($attr_name, $params, @related) = @_;
             return List::MoreUtils::all { $params->{$attr_name} < $params->{$_} } @related;
         },
-    )
+    }
  );
 
-Then load C<MyApp::Types> in your class and set the dependency on any attribute.
+Then load C<MyApp::Types> in your class before MooseX::Attribute::Dependent
+and set the dependency an attribute.
 
  package MyClass;
- use MooseX::Dependency;
- use MyApp::Types 'SmallerThan';
+ use Moose;
+ use MyApp::Types;
+ use MooseX::Attribute::Dependent;
+ 
 
  has small => ( is => 'rw', dependency => SmallerThan['large'] );
  has large => ( is => 'rw' );

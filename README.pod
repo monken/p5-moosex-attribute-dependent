@@ -1,1 +1,1 @@
-lib/MooseX/Dependency.pm
+lib/MooseX/Attribute/Dependent.pm

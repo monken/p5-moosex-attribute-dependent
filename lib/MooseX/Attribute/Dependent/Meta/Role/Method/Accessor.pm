@@ -1,4 +1,4 @@
-package MooseX::Dependency::Meta::Role::Method::Accessor;
+package MooseX::Attribute::Dependent::Meta::Role::Method::Accessor;
 
 # ABSTRACT: Lazy inflate attributes
 use base 'Moose::Meta::Method::Accessor';
@@ -11,13 +11,13 @@ sub _inline_check_constraint {
     my $attr = $self->{attribute};
     
     return $code
-        if( !$attr->does('MooseX::Dependency::Meta::Role::Attribute')
+        if( !$attr->does('MooseX::Attribute::Dependent::Meta::Role::Attribute')
             || !$attr->has_dependency
             || !$attr->init_arg);
     my @source;
-    my $related = "'" . join("', '", @{$attr->dependency->related}) . "'";
+    my $related = "'" . join("', '", @{$attr->dependency->parameters}) . "'";
     push @source => $self->_inline_throw_error( '"' . quotemeta($attr->dependency->get_message) . '"' );
-    push @source => "unless(" . $attr->dependency->name . "->check(\"" . quotemeta($attr->name) . "\", \$_[0], $related));";
+    push @source => "unless(" . $attr->dependency->name . "->constraint->(\"" . quotemeta($attr->name) . "\", \$_[0], $related));";
     
     return join("\n", $code, @source);
 }
