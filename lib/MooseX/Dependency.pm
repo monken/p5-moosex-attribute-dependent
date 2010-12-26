@@ -1,0 +1,145 @@
+package MooseX::Dependency;
+# ABSTRACT: Restrict attributes based on values of other attributes
+use Moose ();
+use Moose::Exporter;
+use Moose::Util::MetaRole;
+use MooseX::Dependency::Types ();
+
+use MooseX::Dependency::Meta::Role::Method::Constructor;
+
+Moose::Exporter->setup_import_methods(
+    also  => 'Moose',
+    as_is => [
+        \&MooseX::Dependency::Types::All,
+        \&MooseX::Dependency::Types::Any,
+        \&MooseX::Dependency::Types::None,
+        \&MooseX::Dependency::Types::NotAll,
+    ]
+);
+
+sub init_meta {
+    shift;
+    my %args = @_;
+
+    Moose->init_meta(%args);
+
+    Moose::Util::MetaRole::apply_metaroles(
+        for             => $args{for_class},
+        class_metaroles => {
+            constructor =>
+              ['MooseX::Dependency::Meta::Role::Method::Constructor'],
+            attribute => ['MooseX::Dependency::Meta::Role::Attribute'],
+        },
+    );
+
+    return $args{for_class}->meta();
+}
+
+1;
+
+__END__
+
+=head1 SYNOPSIS
+
+ package Address;
+ use MooseX::Dependency;
+
+ has street => ( is => 'rw', dependency => All['city', 'zip'] );
+ has city => ( is => 'ro' );
+ has zip => ( is => 'ro', clearer => 'clear_zip' );
+
+ no MooseX::Dependency;
+
+
+ Address->new( street => '10 Downing Street' );
+ # throws error
+ 
+ Address->new( street => '10 Downing Street', city => 'London' );
+ # throws error
+ 
+ Address->new( street => '10 Downing Street', city => 'London', zip => 'SW1A 2AA' );
+ # succeeds
+ 
+ my $address = Address->new;
+ $address->street('10 Downing Street');
+ # throws error
+ 
+ $address->city('London');
+ $address->zip('SW1A 2AA');
+ $address->street('10 Downing Street');
+ # succeeds
+ 
+=head1 DESCRIPTION
+
+Moose type constraints restrict based on the value of the attribute. 
+Using this module, attributes can have more complex constraints, which
+involve values of other attributes.
+It comes with a few constraints and can easily be extended.
+
+ 
+
+=head1 AVAILABLE DEPENDENCIES
+
+=head2 All
+
+All related attributes must have a value.
+
+=head2 Any
+
+At least one related attribute must have a value.
+
+=head2 None
+
+None of the related attributes can have a value.
+
+=head2 NotAll
+
+At least one of the related attributes cannot have a value.
+
+=head1 CUSTOM DEPENDENCIES
+
+To define your own dependency, first create a class to declare constraints
+using L<MooseX::Types>. In this example, we want to restrict an attribute
+to values smaller than serveral other attributes.
+
+ package MyApp::Types;
+ use MooseX::Types -declare => [qw(SmallerThan)];
+ use Moose::Util::TypeConstraints;
+ use strict;
+ use warnings;
+ use MooseX::Dependency::TypeConstraint;
+ use List::MoreUtils ();
+
+ my $REGISTRY = Moose::Util::TypeConstraints->get_type_constraint_registry;
+ $REGISTRY->add_type_constraint(
+    MooseX::Dependency::TypeConstraint->new(
+        name               => SmallerThan,
+        package_defined_in => __PACKAGE__,
+        parent             => find_type_constraint('Item'),
+        message => 'The value must be smaller than ',
+        constraint         => sub {
+            my ($attr_name, $params, @related) = @_;
+            return List::MoreUtils::all { $params->{$attr_name} < $params->{$_} } @related;
+        },
+    )
+ );
+
+Then load C<MyApp::Types> in your class and set the dependency on any attribute.
+
+ package MyClass;
+ use MooseX::Dependency;
+ use MyApp::Types 'SmallerThan';
+
+ has small => ( is => 'rw', dependency => SmallerThan['large'] );
+ has large => ( is => 'rw' );
+ 
+ MyClass->new( small => 10, large => 1); # dies
+ MyClass->new( small => 1, large => 10); # lives
+
+When creating your own dependency it is important to know that there is a
+difference in the parameters passed to the contraint function.
+If the object is in the process of being created (e.g. C<< MyClass->new(...) >>)
+the second parameter is a hashref and consists of the parameters passed
+to C<new> (actually the return value of C<BUILDARGS>).
+If the accessor of an attribute with dependency is called to set a value
+(e.g. C<< $object->small(10) >>), the second parameter is the object itself (C<$object>).
