@@ -2,7 +2,6 @@ package MooseX::Attribute::Dependent::Meta::Role::Attribute;
 use strict;
 use warnings;
 use Moose::Role;
-use Scalar::Util qw(blessed);
 
 has dependency => ( predicate => 'has_dependency', is => 'ro' );
 

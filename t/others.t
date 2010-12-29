@@ -1,4 +1,4 @@
-use Test::Most;
+use Test::Most 0.23;
 
 package All;
 use Moose;
