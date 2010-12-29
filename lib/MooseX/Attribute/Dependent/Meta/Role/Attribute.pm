@@ -6,7 +6,6 @@ use Scalar::Util qw(blessed);
 
 has dependency => ( predicate => 'has_dependency', is => 'ro' );
 
-
 before initialize_instance_slot => sub {
     my ( $self, $meta_instance, $instance, $params ) = @_;
     return unless ( exists $params->{$self->init_arg} && (my $dep = $self->dependency) );
@@ -14,8 +13,14 @@ before initialize_instance_slot => sub {
       unless ( $dep->constraint->( $self->init_arg, $params, @{ $dep->parameters } ) );
 };
 
-
-use MooseX::Attribute::Dependent::Meta::Role::Method::Accessor;
-sub accessor_metaclass { 'MooseX::Attribute::Dependent::Meta::Role::Method::Accessor' }
+override accessor_metaclass => sub { 
+    my $class = super();
+    return Moose::Meta::Class->create_anon_class(
+        superclasses => [$class],
+        roles => ['MooseX::Attribute::Dependent::Meta::Role::Method::Accessor'],
+        cache => 1
+    )->name;
+    
+};
 
 1;

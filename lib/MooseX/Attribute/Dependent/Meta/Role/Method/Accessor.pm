@@ -1,13 +1,10 @@
 package MooseX::Attribute::Dependent::Meta::Role::Method::Accessor;
 
-# ABSTRACT: Lazy inflate attributes
-use base 'Moose::Meta::Method::Accessor';
-use strict;
-use warnings;
+use Moose::Role;
 
-sub _inline_check_constraint {
+override _inline_check_constraint => sub {
     my ( $self, $val ) = @_;
-    my $code = $self->next::method($val);
+    my $code = super();
     my $attr = $self->{attribute};
     
     return $code
@@ -20,6 +17,6 @@ sub _inline_check_constraint {
     push @source => "unless(" . $attr->dependency->name . "->constraint->(\"" . quotemeta($attr->name) . "\", \$_[0], $related));";
     
     return join("\n", $code, @source);
-}
+};
 
 1;
