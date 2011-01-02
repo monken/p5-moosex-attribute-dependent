@@ -4,7 +4,6 @@ use Moose ();
 use Moose::Exporter;
 use Moose::Util::MetaRole;
 use MooseX::Attribute::Dependency;
-use MooseX::Attribute::Dependent::Meta::Role::Method::Constructor;
 
 
 Moose::Exporter->setup_import_methods(
@@ -25,8 +24,7 @@ sub init_meta {
     Moose::Util::MetaRole::apply_metaroles(
         for             => $args{for_class},
         class_metaroles => {
-            constructor =>
-              ['MooseX::Attribute::Dependent::Meta::Role::Method::Constructor'],
+            class => ['MooseX::Attribute::Dependent::Meta::Role::Class'],
             attribute => ['MooseX::Attribute::Dependent::Meta::Role::Attribute'],
         },
     );

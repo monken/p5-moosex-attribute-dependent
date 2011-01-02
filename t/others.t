@@ -18,6 +18,7 @@ has zip => ( is => 'ro', clearer => 'clear_zip' );
 
 package main;
 
+diag 'mutable';
 for(1..2) 
 {
     throws_ok { All->new(street => 1) } qr/city/, 'city and zip are required';
@@ -26,10 +27,11 @@ for(1..2)
     lives_ok { All->new() } 'empty new lives ok';
     my $foo = All->new;
     throws_ok { $foo->street("foo") } qr/city/, 'works on accessor as well';
-    diag "making immutable";
+    diag "making immutable" if($_ == 1);
     All->meta->make_immutable;
 }
 
+diag 'mutable';
 for(1..2) 
 {
     throws_ok { Any->new(street => 1) } qr/city/, 'city or zip are required';
@@ -39,7 +41,7 @@ for(1..2)
     lives_ok { Any->new() } 'empty new lives ok';
     my $foo = Any->new;
     throws_ok { $foo->street("foo") } qr/city/, 'works on accessor as well';
-    diag "making immutable";
+    diag "making immutable" if($_ == 1);
     Any->meta->make_immutable;
 }
 
