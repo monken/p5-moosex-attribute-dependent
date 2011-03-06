@@ -24,7 +24,11 @@ sub init_meta {
     Moose::Util::MetaRole::apply_metaroles(
         for             => $args{for_class},
         class_metaroles => {
-            class => ['MooseX::Attribute::Dependent::Meta::Role::Class'],
+            (Moose->VERSION >= 1.9900
+                ? (class =>
+                    ['MooseX::Attribute::Dependent::Meta::Role::Class'])
+                : (constructor =>
+                    ['MooseX::Attribute::Dependent::Meta::Role::Method::Constructor'])),
             attribute => ['MooseX::Attribute::Dependent::Meta::Role::Attribute'],
         },
     );

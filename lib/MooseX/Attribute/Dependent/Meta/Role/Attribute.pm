@@ -15,6 +15,16 @@ before initialize_instance_slot => sub {
         $dep->constraint->( $self->init_arg, $params, @{ $dep->parameters } ) );
 };
 
+override accessor_metaclass => sub { 
+    my $class = super();
+    return Moose::Meta::Class->create_anon_class(
+        superclasses => [$class],
+        roles => ['MooseX::Attribute::Dependent::Meta::Role::Method::Accessor'],
+        cache => 1
+    )->name;
+    
+} if Moose->VERSION < 1.9900;
+
 override _inline_check_required => sub {
     my $attr = shift;
     my @code = super();
@@ -34,6 +44,6 @@ override _inline_check_required => sub {
       . "\", \$_[0], $related));";
 
     return join( "\n", @source, @code );
-};
+} if Moose->VERSION >= 1.9900;
 
 1;
