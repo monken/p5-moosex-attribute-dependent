@@ -1,6 +1,5 @@
 package MooseX::Attribute::Dependent::Meta::Role::ApplicationToClass;
 use Moose::Role;
-use MooseX::Attribute::LazyInflator::Role::Class;
 
 around apply => sub {
     my $orig  = shift;
