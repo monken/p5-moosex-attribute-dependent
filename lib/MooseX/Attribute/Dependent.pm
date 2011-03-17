@@ -4,6 +4,8 @@ use Moose ();
 use Moose::Exporter;
 use Moose::Util::MetaRole;
 use MooseX::Attribute::Dependency;
+use MooseX::Attribute::Dependent::Meta::Role::ApplicationToClass;
+use MooseX::Attribute::Dependent::Meta::Role::ApplicationToRole;
 
 
 Moose::Exporter->setup_import_methods(
@@ -18,6 +20,9 @@ Moose::Exporter->setup_import_methods(
     },
     role_metaroles => {
         attribute => ['MooseX::Attribute::Dependent::Meta::Role::Attribute'],
+        application_to_class => ['MooseX::Attribute::Dependent::Meta::Role::ApplicationToClass'],
+        application_to_role => ['MooseX::Attribute::Dependent::Meta::Role::ApplicationToRole'],
+        
     },
 );
 

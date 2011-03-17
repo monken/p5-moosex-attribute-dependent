@@ -28,9 +28,11 @@ around accessor_metaclass => sub {
     
 } if Moose->VERSION < 1.9900;
 
-override _inline_check_required => sub {
+sub _inline_check_required {}
+around _inline_check_required => sub {
+    my $orig = shift;
     my $attr = shift;
-    my @code = super();
+    my @code = $attr->$orig(@_);
     return @code
       if ( !$attr->does('MooseX::Attribute::Dependent::Meta::Role::Attribute')
         || !$attr->has_dependency

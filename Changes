@@ -1,3 +1,7 @@
+1.1.0 - 2011-03-17
+  - Dependent attribute can now be defined in roles
+    and applied to roles or classes
+
 1.0.1 - 2011-03-08
   - Moose 2.0 and 1.24 compatible (thanks doy)
 
