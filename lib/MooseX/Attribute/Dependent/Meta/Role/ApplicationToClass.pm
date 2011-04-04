@@ -15,7 +15,6 @@ around apply => sub {
                     ['MooseX::Attribute::Dependent::Meta::Role::Class'])
                 : (constructor =>
                     ['MooseX::Attribute::Dependent::Meta::Role::Method::Constructor'])),
-            attribute => ['MooseX::Attribute::Dependent::Meta::Role::Attribute'],
         });
     $self->$orig( $role, $class );
 };
