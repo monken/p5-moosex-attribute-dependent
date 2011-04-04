@@ -19,7 +19,6 @@ Moose::Exporter->setup_import_methods(
         attribute => ['MooseX::Attribute::Dependent::Meta::Role::Attribute'],
     },
     role_metaroles => {
-        attribute => ['MooseX::Attribute::Dependent::Meta::Role::Attribute'],
         application_to_class => ['MooseX::Attribute::Dependent::Meta::Role::ApplicationToClass'],
         application_to_role => ['MooseX::Attribute::Dependent::Meta::Role::ApplicationToRole'],
         

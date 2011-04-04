@@ -10,7 +10,6 @@ around apply => sub {
       Moose::Util::MetaRole::apply_metaroles(
         for            => $class,
         role_metaroles => {
-            attribute => ['MooseX::Attribute::Dependent::Meta::Role::Attribute'],
             application_to_class => ['MooseX::Attribute::Dependent::Meta::Role::ApplicationToClass'],
             application_to_role => ['MooseX::Attribute::Dependent::Meta::Role::ApplicationToRole'],
 
