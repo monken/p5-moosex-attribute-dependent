@@ -4,7 +4,7 @@ package All;
 use Moose;
 use MooseX::Attribute::Dependent;
 
-has street => ( is => 'rw', dependency => All['city', 'zip'] );
+has street => ( dependency => All['city', 'zip'], is => 'rw' );
 has city => ( is => 'ro' );
 has zip => ( is => 'ro', clearer => 'clear_zip' );
 

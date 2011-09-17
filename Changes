@@ -1,3 +1,6 @@
+1.1.2 - 2011-09-17
+  - fixed bug where the dependency parameter would swallow all subsequent parameters
+
 1.1.1 - 2011-04-05
   - fixed role composition (doy)
   - fixed bogus prereqs
