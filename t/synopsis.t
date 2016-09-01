@@ -1,5 +1,6 @@
 package MyApp::Types;
 use MooseX::Attribute::Dependency;
+use List::MoreUtils ();
 
 BEGIN { MooseX::Attribute::Dependency::register({
        name               => 'SmallerThan',

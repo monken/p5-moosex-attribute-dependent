@@ -32,6 +32,7 @@ __PACKAGE__->meta->make_immutable;
 package MooseX::Attribute::Dependencies;
 use strict;
 use warnings;
+use List::MoreUtils ();
 
 MooseX::Attribute::Dependency::register(
     {   name       => 'All',
